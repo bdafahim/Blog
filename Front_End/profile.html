@@ -1,0 +1,304 @@
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+    <!-- Initial Script -->
+
+<script>
+    var url = "http://localhost:3002/api/profile";
+
+    var token = window.localStorage.getItem('token');
+
+    var token_json = JSON.parse(token);
+    var xhr =new XMLHttpRequest();
+    xhr.open("GET", url, true);
+    xhr.setRequestHeader("Authorization","Bearer "+token_json.token);
+    xhr.onload = function() {
+        if (this.status == 200) {
+            console.log(this.response);
+          // Here we go on the new page
+          var jsonResponse = JSON.parse(this.response);
+          alert(JSON.stringify(jsonResponse));
+          var user_id = document.getElementById("user_id");
+          user_id.textContent= "UID : "+ jsonResponse.user._id;
+          var user_name = document.getElementById("user_name");
+          user_name.textContent = "Name : "+jsonResponse.user.name;
+          var user_email = document.getElementById("user_email")
+          user_email.textContent = "Email : "+ jsonResponse.user.email;
+          var update_user_name = document.getElementById("user_name_edit");
+          update_user_name.value = jsonResponse.user.name;
+        }
+        else {
+          alert("Invalid profile");
+        }
+    };
+    xhr.send();
+    
+</script>
+
+    <!-- Div On Script -->
+
+<script>
+    function ViewUpdateOption(){
+        var divOn = document.getElementById("viewUpdate");
+        divOn.style.display = "block"
+    }
+</script>
+
+    <!-- Update Name Script -->
+
+<script>
+    function profile_Update(){
+        var edited_name = document.getElementById("user_name_edit").value;
+
+        var url = "http://localhost:3002/api/profile/update";
+
+        var token = window.localStorage.getItem('token');
+        var token_json = JSON.parse(token);
+        var xhr =new XMLHttpRequest();
+        xhr.open("POST", url, true);
+        xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.setRequestHeader("Authorization","Bearer "+token_json.token);
+        var data = JSON.stringify({"name":edited_name});
+
+        xhr.onload = function() {
+            if (this.status == 200) {
+                alert("Profile Updated");
+                console.log(this.response);
+                window.location.replace("./profile.html");
+            // Here we go on the new page
+            var jsonResponse = JSON.parse(this.response);
+            }
+            else {
+                alert("Unable to Update");
+            }
+        };
+        xhr.send(data);
+    }
+    
+</script>
+    
+
+
+
+<nav class="navbar navbar-expand-sm bg-dark navbar-dark fixed-top">
+    <!-- Brand/logo -->
+    <a class="navbar-brand" href="#">Blog</a>
+
+    <!-- Links -->
+    <ul class="navbar-nav">
+        <li class="nav-item">
+        <a class="nav-link" href="./Authorized_Index.html">Home</a>
+        </li>
+        <li class="nav-item">
+        <a class="nav-link" href="./createPost.html">Create Post</a>
+        </li>
+    </ul>
+</nav>
+
+<div class="d-flex justify-content-center" style="background: #373838;" >
+    <div class=" justify-content-center col-md-6" style="margin-top: 80px;" >
+        <!-- <h1 class="d-flex justify-content-center">PROFILE</h1>
+        <h3 id="user_id"></h3>
+        <h3 id="user_name"></h3>
+        <h3 id="user_email"></h3> -->
+        <div class="list-group-item">
+            <div class="d-flex justify-content-center">
+                <h3>Profile</h3>
+            </div>
+            <h5 class="list-group-item" id="user_id"></h5>
+            <h5 class="list-group-item" id="user_name"></h5>
+            <h5 class="list-group-item" id="user_email"></h5>
+            <br>
+            <button class="btn btn-secondary" onclick="javascript: ViewUpdateOption();">Update Profile</button>
+        </div>
+    </div>
+</div>
+
+
+<div class="d-flex justify-content-center" style="background: #4b4d4e;" >
+    <div class=" justify-content-center col-md-6" style="margin-top: 80px;" >
+        <div id="viewUpdate" class="container" style="background: #494b4b;padding: 20px; display: none;">
+            <form>
+                <input style="width: 100%;" type="text" id="user_name_edit" name="name_text">
+            </form>
+            <button class="d-flex justify-content-center btn btn-primary" onclick="javascript: profile_Update();">Update Name</button>
+        </div>
+    </div>
+</div>
+
+
+<div class="d-flex justify-content-center" style="background: #38393a;" >
+    <div class=" justify-content-center col-md-6" style="background: #3e4041;">
+        <h1 class="d-flex justify-content-center" style="margin-top: 30px;">Your Posts</h1>
+        
+        <div class="row" id="postList" style="margin-bottom: 10px;margin-top: 20px;">
+
+            <div class="container col-md-12" style="margin-bottom: 10px;">
+
+                </div>
+
+            </div>
+
+        <script>
+            var url = "http://localhost:3002/api/profile";
+        
+            var token = window.localStorage.getItem('token');
+            var token_json = JSON.parse(token);
+            var xhr =new XMLHttpRequest();
+            xhr.open("GET", url, true);
+            xhr.setRequestHeader("Authorization","Bearer "+token_json.token);
+            xhr.onload = function() {
+                if (this.status == 200) {
+                    console.log(this.response);
+                // Here we go on the new page
+                var jsonResponse = JSON.parse(this.response);
+                    jsonResponse.postSet.forEach(dataJson =>{
+                
+                    var app = document.getElementById("postList");
+
+                    var contain = document.createElement("div");
+                    contain.setAttribute("class", "container col-md-12");
+                    contain.style.marginBottom = "10px";
+                    app.appendChild(contain);
+
+                    var containCard = document.createElement("div");
+                    containCard.setAttribute("class", "card");
+                    contain.appendChild(containCard);
+
+                    var cardbody = document.createElement("div");
+                    cardbody.setAttribute("class","card-body");
+                    containCard.appendChild(cardbody);
+
+                    var cardtitle = document.createElement("h2");
+                    cardtitle.setAttribute("class","card-title");
+                    cardtitle.textContent = dataJson.title;
+                    cardbody.appendChild(cardtitle);
+
+                    var carddate  = document.createElement("p");
+                    carddate.textContent = dataJson.time +" , "+ dataJson.date;
+                    cardbody.appendChild(carddate);
+
+                    var horizontalline = document.createElement("hr");
+                    cardbody.appendChild(horizontalline);
+
+                    var cardtext = document.createElement("p");
+                    cardtext.setAttribute("class","card-text");
+                    cardtext.textContent = dataJson.body;
+                    cardbody.appendChild(cardtext);
+
+                    var UID = dataJson._id;
+                    var carda = document.createElement("button");
+                    carda.setAttribute("class", "btn btn-danger");
+                    carda.setAttribute("onclick", "javascript: delete_post(\""+UID+"\")");
+                    carda.textContent = "Delete";
+                    carda.style.marginRight = 10;
+                    cardbody.appendChild(carda);
+
+                    var carda_readmore = document.createElement("a");
+                    carda_readmore.setAttribute("class", "btn btn-outline-success");
+                    carda_readmore.setAttribute("href","./AuthorizedSinglePost.html?id="+dataJson._id);
+                    carda_readmore.textContent = "Read More";
+                    cardbody.appendChild(carda_readmore);
+                    
+        
+                    });
+        
+                }
+                else {
+                alert("Invalid Login");
+                }
+            };
+            xhr.send();
+        </script>
+
+        <script>
+            function delete_post(UID){
+                console.log("Delete _post");
+                var url = "http://localhost:3002/api/post/"+UID+"/delete";
+        
+                var token = window.localStorage.getItem('token');
+                var token_json = JSON.parse(token);
+                var xhr =new XMLHttpRequest();
+                xhr.open("GET", url, true);
+                xhr.setRequestHeader("Authorization","Bearer "+token_json.token);
+                xhr.onload = function() {
+                    if (this.status == 200) {
+                        console.log(this.response);
+                        alert("post deleted");
+                        window.location.replace("./profile.html");
+                    }
+                    else{
+                        alert("Can't delete");
+                    }
+                }
+                xhr.send();
+            }
+        </script>
+
+
+
+                    
+        </div>
+        
+    </div>
+</div>
+
+
+
+
+        <!-- Basic Script -->
+
+
+<!-- 
+<script>
+        var url = "http://localhost:3002/api/profile";
+    
+        var token = window.localStorage.getItem('token');
+        var token_json = JSON.parse(token);
+        var xhr =new XMLHttpRequest();
+        xhr.open("GET", url, true);
+        xhr.setRequestHeader("Authorization","Bearer "+token_json.token);
+        xhr.onload = function() {
+            if (this.status == 200) {
+                console.log(this.response);
+            // Here we go on the new page
+            var jsonResponse = JSON.parse(this.response);
+                jsonResponse.postSet.forEach(dataJson =>{
+            
+                var app = document.getElementById("postList");
+                var contain = document.createElement("div");
+                contain.setAttribute("class", "container col-md-12");
+                contain.style.marginBottom = "10px";
+                app.appendChild(contain);
+                var containCard = document.createElement("div");
+                containCard.setAttribute("class", "card");
+                contain.appendChild(containCard);
+                var cardbody = document.createElement("div");
+                cardbody.setAttribute("class","card-body");
+                containCard.appendChild(cardbody);
+                var cardtitle = document.createElement("h5");
+                cardtitle.setAttribute("class","card-title");
+                cardtitle.textContent = dataJson.title;
+                cardbody.appendChild(cardtitle);
+                var cardtext = document.createElement("p");
+                cardtext.setAttribute("class","card-text");
+                cardtext.textContent = dataJson.body;
+                cardbody.appendChild(cardtext);
+                var carda = document.createElement("a");
+                carda.setAttribute("class", "btn btn-danger");
+                carda.setAttribute("href","#");
+                carda.textContent = "Delete";
+                cardbody.appendChild(carda);
+    
+                });
+    
+            }
+            else {
+            alert("Invalid Login");
+            }
+        };
+        xhr.send();
+    </script> -->
